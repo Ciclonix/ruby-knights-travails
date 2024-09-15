@@ -3,11 +3,10 @@ class Square
 
   attr_accessor :x, :y, :path
 
-  def initialize(x, y, path = [])
+  def initialize(x, y, path)
     @x = x
     @y = y
     @path = path.append([x, y])
-    p path
   end
 
   def <=>(other)
@@ -26,9 +25,9 @@ class Square
       [x - 2, y - 1]
     ]
     possible_moves.map! do |coords|
-      x = coords[0]
-      y = coords[1]
-      Square.new(x, y, path) if x.between?(0,7) && y.between?(0,7)
+      new_x = coords[0]
+      new_y = coords[1]
+      Square.new(new_x, new_y, path.clone) if new_x.between?(0,7) && new_y.between?(0,7)
     end
     possible_moves.compact!
     return possible_moves
@@ -37,9 +36,11 @@ end
 
 
 def knight_moves(start, finish)
-  start_square = Square.new(start[0], start[1])
-  finish_square = Square.new(finish[0], finish[1])
-  return findShortestPath(start_square, finish_square)
+  start_square = Square.new(start[0], start[1], [])
+  finish_square = Square.new(finish[0], finish[1], [])
+  path = findShortestPath(start_square, finish_square)
+  puts "You made it in #{path.length} moves! Here's your path:"
+  path.each { |x| p x }
 end
 
 
@@ -49,7 +50,7 @@ def findShortestPath(from_square, to_square)
   loop do
     temp = []
     queue.each do |square|
-      return square if square == to_square
+      return square.path if square == to_square
 
       visited << square
       temp << square.possibleKnightMoves
@@ -61,9 +62,5 @@ def findShortestPath(from_square, to_square)
       end
     end
     queue = temp
-    p queue
   end
 end
-
-
-p knight_moves([0,0], [1,2])
